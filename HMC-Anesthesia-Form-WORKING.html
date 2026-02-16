@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>בדיקת עמדת הרדמה יומית - HMC</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2b52a1",
+                        secondary: "#f0f4ff",
+                    },
+                },
+            },
+        };
+    </script>
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Assistant', sans-serif;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            width: 100%;
+            background-color: #f9fafb !important;
+            color: #1e293b !important;
+            padding-bottom: 6rem;
+        }
+        
+        /* Header */
+        header {
+            background-color: white !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        header .max-w-md {
+            max-width: 28rem;
+            margin: 0 auto;
+        }
+        
+        header .flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .text-primary {
+            color: #2b52a1 !important;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .h-6 {
+            height: 1.5rem;
+            width: 1px;
+            background-color: #cbd5e1 !important;
+        }
+        
+        .text-slate-600 {
+            color: #475569 !important;
+            font-size: 1.125rem;
+        }
+        
+        h1 {
+            color: #2b52a1 !important;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        /* Main Content */
+        main {
+            max-width: 28rem;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        section {
+            margin: 1.5rem 0;
+        }
+        
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        .space-y-2 > * + * {
+            margin-top: 0.5rem;
+        }
+        
+        /* Form Labels */
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            margin-right: 0.25rem;
+            color: #334155;
+        }
+        
+        /* Select Fields */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 100%;
+            padding: 1rem;
+            padding-left: 50px;
+            padding-right: 16px;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            background-color: white !important;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #2b52a1 !important;
+            box-shadow: 0 0 0 3px rgba(43, 82, 161, 0.1);
+        }
+        
+        .relative {
+            position: relative;
+        }
+        
+        .absolute {
+            position: absolute;
+        }
+        
+        .left-4 {
+            left: 1rem;
+        }
+        
+        .top-1\/2 {
+            top: 50%;
+        }
+        
+        .-translate-y-1\/2 {
+            transform: translateY(-50%);
+        }
+        
+        .text-slate-400 {
+            color: #94a3b8;
+        }
+        
+        .pointer-events-none {
+            pointer-events: none;
+        }
+        
+        .text-xl {
+            font-size: 1.25rem;
+        }
+        
+        /* Section Headers */
+        h2 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-right: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Check Items */
+        .check-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 0.5rem;
+        }
+        
+        .check-item-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .icon-circle {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            background-color: #eff6ff !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2b52a1 !important;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        /* Toggle Switch */
+        .toggle-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .toggle-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .toggle-bg {
+            width: 2.75rem;
+            height: 1.5rem;
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .toggle-bg::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            height: 1.25rem;
+            width: 1.25rem;
+            transition: all 0.3s;
+        }
+        
+        .toggle-input:checked + .toggle-bg {
+            background-color: #2b52a1 !important;
+        }
+        
+        .toggle-input:checked + .toggle-bg::after {
+            transform: translateX(-1.25rem);
+            border-color: white !important;
+        }
+        
+        .toggle-input:focus + .toggle-bg {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+        
+        /* Signature Section */
+        .signature-box {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+            padding: 1rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .signature-preview {
+            margin-bottom: 0.75rem;
+        }
+        
+        .signature-preview img {
+            max-height: 6rem;
+            margin: 0 auto;
+        }
+        
+        .signature-preview button {
+            font-size: 0.75rem;
+            color: #dc2626;
+            margin-top: 0.5rem;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .signature-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .signature-btn:hover {
+            background-color: #e2e8f0;
+        }
+        
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #2b52a1 0%, #1e3a8a 100%) !important;
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.125rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(43, 82, 161, 0.2);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            transform: scale(0.98);
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.96);
+        }
+        
+        /* Footer */
+        footer {
+            max-width: 28rem;
+            margin: 0 auto;
+            padding: 0 1rem;
+            margin-top: 1rem;
+            margin-bottom: 6rem;
+        }
+        
+        .info-box {
+            background-color: #eff6ff;
+            padding: 1rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid #dbeafe;
+        }
+        
+        .info-box span {
+            color: #2b52a1;
+        }
+        
+        .info-box div {
+            font-size: 0.75rem;
+            line-height: 1.5;
+            opacity: 0.8;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            max-width: 28rem;
+            width: calc(100% - 2rem);
+            margin: 1rem;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            color: #94a3b8;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        
+        .modal-close:hover {
+            color: #475569;
+        }
+        
+        #signatureCanvas {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            background: white;
+            touch-action: none;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn-clear {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-clear:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .btn-save {
+            flex: 1;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #2b52a1 0%, #1e3a8a 100%);
+            color: white;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-save:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        
+        /* Loading Modal */
+        .loading-content {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 20rem;
+            width: calc(100% - 2rem);
+            text-align: center;
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+            border-radius: 9999px;
+            height: 4rem;
+            width: 4rem;
+            border: 4px solid #e2e8f0;
+            border-top-color: #2b52a1;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-content p {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        /* Utility Classes */
+        .pt-2 { padding-top: 0.5rem; }
+        .pt-4 { padding-top: 1rem; }
+        .text-center { text-align: center; }
+        .text-xs { font-size: 0.75rem; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 pb-24">
+
+<header class="bg-white border-b border-slate-100 pt-8 pb-6 px-6 text-center sticky top-0 z-50">
+    <div class="max-w-md mx-auto">
+        <div class="flex items-center justify-center gap-3 mb-6">
+            <span class="text-primary text-xl font-bold">HMC</span>
+            <div class="h-6 w-[1px] bg-slate-300"></div>
+            <span class="text-slate-600 text-lg">הרצליה מדיקל סנטר</span>
+        </div>
+        <h1 class="text-primary text-2xl font-bold">בדיקת עמדת הרדמה יומית</h1>
+    </div>
+</header>
+
+<main class="max-w-md mx-auto p-4 space-y-6">
+    
+    <section class="space-y-4 pt-2">
+        <div>
+            <label class="block text-sm font-semibold mb-1.5 mr-1 text-slate-700" for="station-number">מספר חדר/עמדה</label>
+            <select class="w-full p-4 rounded-2xl border border-slate-200 bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm" id="station-number" required>
+                <option disabled selected value="">בחר מספר חדר/עמדה</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="09">09</option>
+                <option value="IVF">IVF</option>
+                <option value="MRI">MRI</option>
+                <option value="פעולות">פעולות</option>
+                <option value="צינתורים">צינתורים</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold mb-1.5 mr-1 text-slate-700" for="assistant-name">שם עוזר המרדים</label>
+            <select class="w-full p-4 rounded-2xl border border-slate-200 bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm" id="assistant-name" required>
+                <option disabled selected value="">בחר שם מהרשימה</option>
+                <option value="אלכס דבורצקי">אלכס דבורצקי</option>
+                <option value="דן סופריצב">דן סופריצב</option>
+                <option value="יוסרי ג'מיל">יוסרי ג'מיל</option>
+                <option value="נג'אד שרקיה">נג'אד שרקיה</option>
+                <option value="נהאד ותד">נהאד ותד</option>
+                <option value="עובב אבו שייכה">עובב אבו שייכה</option>
+                <option value="ערן אורן מור">ערן אורן מור</option>
+                <option value="פירוז מרעי">פירוז מרעי</option>
+                <option value="ראכב עגינה">ראכב עגינה</option>
+                <option value="שאדי עותמאן">שאדי עותמאן</option>
+            </select>
+        </div>
+    </section>
+    
+    <section class="space-y-3">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 mb-2">רשימת בדיקה יומית</h2>
+        <div class="space-y-2">
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">power</span>
+                    </div>
+                    <span class="font-medium">מכונת הרדמה מחוברת לשקע כחול</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-power" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">settings_input_component</span>
+                    </div>
+                    <span class="font-medium">אספקת גזים: O2, Air, N2O מחוברים</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-gas" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">battery_charging_full</span>
+                    </div>
+                    <span class="font-medium">גיבוי חירום: בלון מזגן ורובר מלא</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-backup" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">opacity</span>
+                    </div>
+                    <span class="font-medium">מאיידים (Vaporizers) מלאים</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-vap" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">filter_alt</span>
+                    </div>
+                    <span class="font-medium">הנשמה: סט צנרת ופילטר חדשים</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-vent" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">monitor_heart</span>
+                    </div>
+                    <span class="font-medium">מוניטור: כבלים ושרוול ל"ד תקינים</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-mon" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">medical_services</span>
+                    </div>
+                    <span class="font-medium">סקשן: ואקום פעיל ומיכל נקי</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-suc" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">science</span>
+                    </div>
+                    <span class="font-medium">Soda Lime - לבן/תקין</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-soda" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+                        <span class="material-icons-round">fact_check</span>
+                    </div>
+                    <span class="font-medium">בוצעה בדיקת דליפה (Leak Test)</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="check-leak" class="sr-only peer" type="checkbox"/>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+        </div>
+    </section>
+    
+    <section class="space-y-4">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">חתימה דיגיטלית</h2>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+            <div id="signaturePreview" class="hidden mb-3">
+                <img id="signatureImg" alt="חתימה" class="max-h-24 mx-auto"/>
+                <button onclick="clearSignature()" class="text-xs text-red-600 mt-2 underline">נקה חתימה</button>
+            </div>
+            <button onclick="openSignatureModal()" id="signatureBtn" class="w-full py-3 bg-slate-100 text-slate-700 font-medium rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
+                <span class="material-icons-round">edit</span>
+                <span>לחץ לחתימה</span>
+            </button>
+        </div>
+    </section>
+    
+    <section class="pt-4 space-y-3">
+        <button onclick="submitForm()" class="w-full py-4 bg-primary text-white font-bold text-lg rounded-2xl shadow-lg active:scale-[0.98] transition-all hover:bg-blue-800">
+            שלח דוח יומי
+        </button>
+        <p class="text-center text-xs text-slate-400">הנתונים יישלחו ישירות למערכת הניהול של HMC</p>
+    </section>
+    
+</main>
+
+<footer class="max-w-md mx-auto px-4 mt-4 mb-24">
+    <div class="bg-blue-50 p-4 rounded-2xl flex items-center gap-4 border border-blue-100">
+        <span class="material-icons-round text-primary">info</span>
+        <div class="text-xs leading-relaxed opacity-80">
+            שימוש בטופס זה מחליף את רישום הנייר המסורתי. כל הבדיקות חייבות להתבצע לפני תחילת יום העבודה.
+        </div>
+    </div>
+</footer>
+
+<div id="signatureModal" class="modal">
+    <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">חתימה דיגיטלית</h3>
+            <button onclick="closeSignatureModal()" class="text-slate-400 hover:text-slate-600">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="mb-4">
+            <canvas id="signatureCanvas" width="400" height="200"></canvas>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="clearCanvas()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-medium rounded-xl hover:bg-slate-200 transition-all">נקה</button>
+            <button onclick="saveSignature()" class="flex-1 py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition-all">שמור חתימה</button>
+        </div>
+    </div>
+</div>
+
+<div id="loadingModal" class="modal">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mx-auto mb-4"></div>
+        <p class="text-lg font-semibold">שולח נתונים...</p>
+    </div>
+</div>
+
+<script>
+// ========== CONFIGURATION ==========
+const POWER_AUTOMATE_URL = 'https://defaultee94ca52f51e4850b8077d9ff610be.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9a72608e4ecd4f7b9234677a30d8c32f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=HMt0kuJyL0HcP0ikOK7U8A4vcqmimbpJRVCylUAYZGQ';
+
+// ========== SIGNATURE PAD ==========
+let canvas, ctx, isDrawing = false, signatureData = null;
+
+function initializeCanvas() {
+    canvas = document.getElementById('signatureCanvas');
+    ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+}
+
+function handleTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+}
+
+function startDrawing(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+}
+
+function stopDrawing() {
+    isDrawing = false;
+}
+
+function openSignatureModal() {
+    document.getElementById('signatureModal').classList.add('active');
+    if (!canvas) initializeCanvas();
+}
+
+function closeSignatureModal() {
+    document.getElementById('signatureModal').classList.remove('active');
+}
+
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function saveSignature() {
+    signatureData = canvas.toDataURL();
+    document.getElementById('signatureImg').src = signatureData;
+    document.getElementById('signaturePreview').classList.remove('hidden');
+    document.getElementById('signatureBtn').innerHTML = '<span class="material-icons-round">check_circle</span><span>חתימה נשמרה</span>';
+    closeSignatureModal();
+}
+
+function clearSignature() {
+    signatureData = null;
+    document.getElementById('signaturePreview').classList.add('hidden');
+    document.getElementById('signatureBtn').innerHTML = '<span class="material-icons-round">edit</span><span>לחץ לחתימה</span>';
+    clearCanvas();
+}
+
+// ========== FORM VALIDATION ==========
+function validateForm() {
+    if (!document.getElementById('station-number').value) {
+        alert('אנא בחר מספר חדר/עמדה');
+        return false;
+    }
+    
+    if (!document.getElementById('assistant-name').value) {
+        alert('אנא בחר שם עוזר מרדים');
+        return false;
+    }
+    
+    if (!signatureData) {
+        alert('אנא חתום על הטופס');
+        return false;
+    }
+    
+    const checks = ['check-power', 'check-gas', 'check-backup', 'check-vap', 'check-vent', 'check-mon', 'check-suc', 'check-soda', 'check-leak'];
+    const checkedCount = checks.filter(id => document.getElementById(id).checked).length;
+    
+    if (checkedCount === 0) {
+        alert('אנא סמן לפחות פריט אחד ברשימת הבדיקה');
+        return false;
+    }
+    
+    return true;
+}
+
+// ========== COLLECT FORM DATA ==========
+function collectFormData() {
+    const now = new Date();
+    return {
+        date: now.toLocaleDateString('he-IL'),
+        time: now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        stationNumber: document.getElementById('station-number').value,
+        assistantName: document.getElementById('assistant-name').value,
+        checks: {
+            power: document.getElementById('check-power').checked,
+            gas: document.getElementById('check-gas').checked,
+            backup: document.getElementById('check-backup').checked,
+            vaporizers: document.getElementById('check-vap').checked,
+            ventilation: document.getElementById('check-vent').checked,
+            monitor: document.getElementById('check-mon').checked,
+            suction: document.getElementById('check-suc').checked,
+            sodaLime: document.getElementById('check-soda').checked,
+            leakTest: document.getElementById('check-leak').checked
+        },
+        signature: signatureData
+    };
+}
+
+// ========== SEND TO POWER AUTOMATE ==========
+async function sendToPowerAutomate(data) {
+    try {
+        console.log('Sending to Power Automate...', POWER_AUTOMATE_URL);
+        console.log('Data:', data);
+        
+        const response = await fetch(POWER_AUTOMATE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (response.status === 202) {
+            // 202 Accepted - Flow is processing
+            console.log('✅ Flow accepted and processing!');
+            return { success: true, data: { status: 'accepted', message: 'Flow is processing' } };
+        } else if (response.ok) {
+            // Try to parse JSON response
+            const text = await response.text();
+            if (text) {
+                try {
+                    const result = JSON.parse(text);
+                    console.log('Success:', result);
+                    return { success: true, data: result };
+                } catch (e) {
+                    console.log('Response not JSON:', text);
+                    return { success: true, data: { message: text } };
+                }
+            }
+            return { success: true };
+        } else {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+    } catch (error) {
+        console.error('Power Automate error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// ========== SUBMIT FORM ==========
+async function submitForm() {
+    if (!validateForm()) {
+        return;
+    }
+    
+    document.getElementById('loadingModal').classList.add('active');
+    
+    const formData = collectFormData();
+    const result = await sendToPowerAutomate(formData);
+    
+    document.getElementById('loadingModal').classList.remove('active');
+    
+    if (result.success) {
+        alert('✅ הדוח נשלח בהצלחה!\n\nתאריך: ' + formData.date + '\nשעה: ' + formData.time + '\nחדר: ' + formData.stationNumber + '\nטכנאי: ' + formData.assistantName + '\n\nהנתונים נשמרו במערכת.');
+        resetForm();
+    } else {
+        alert('❌ שגיאה בשליחת הדוח\n\nשגיאה: ' + result.error + '\n\nאנא נסה שנית או פנה לתמיכה טכנית.\n\n(בדוק את הקונסול לפרטים נוספים - לחץ F12)');
+    }
+}
+
+function resetForm() {
+    document.getElementById('station-number').value = '';
+    document.getElementById('assistant-name').value = '';
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    clearSignature();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ HMC Anesthesia Form - Ready!');
+    console.log('📍 Power Automate URL configured:', POWER_AUTOMATE_URL ? 'YES' : 'NO');
+});
+</script>
+
+</body>
+</html>
